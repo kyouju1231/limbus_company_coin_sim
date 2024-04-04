@@ -125,4 +125,5 @@ def calcutate(ally_data, enemy_data):
 
 
 
+
     return result1,result2
