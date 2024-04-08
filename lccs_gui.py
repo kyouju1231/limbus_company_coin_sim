@@ -48,7 +48,7 @@ class EntryFrame(tk.Frame):
                     text= "▲", font= font2,
                     bd=1, relief= "raised",
                     command= lambda: increment(self.entry),
-                    repeatdelay= 100, repeatinterval= 150,
+                    repeatdelay= 100, repeatinterval= 120,
                     )
         up_btn.pack(side=tk.TOP)
 
@@ -57,7 +57,7 @@ class EntryFrame(tk.Frame):
                     text= "▼", font= font2,
                     bd=1, relief= "raised",
                     command= lambda: decrement(self.entry),
-                    repeatdelay= 100, repeatinterval= 150,
+                    repeatdelay= 100, repeatinterval= 120,
                     )
         dwn_btn.pack(side=tk.BOTTOM)
 
