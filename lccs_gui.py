@@ -8,21 +8,6 @@ font1 = ("Meiryo",10)
 font2 = ("",7)
 
 
-# entryの数値を上げ下げする関数
-def increment(entry:tk.Entry):
-    current_value = entry.get()
-    if current_value.lstrip("-").isdigit():
-        new_value = int(current_value) + 1
-        entry.delete(0, tk.END)
-        entry.insert(0, str(new_value))
-
-def decrement(entry:tk.Entry):
-    current_value = entry.get()
-    if current_value.lstrip("-").isdigit():
-        new_value = int(current_value) - 1
-        entry.delete(0, tk.END)
-        entry.insert(0, str(new_value))
-
 
 # 入力欄と横のボタンをフレームにまとめる
 class EntryFrame(tk.Frame):
@@ -47,7 +32,7 @@ class EntryFrame(tk.Frame):
                     width= 2,
                     text= "▲", font= font2,
                     bd=1, relief= "raised",
-                    command= lambda: increment(self.entry),
+                    command= lambda: self.increment(self.entry),
                     repeatdelay= 100, repeatinterval= 120,
                     )
         up_btn.pack(side=tk.TOP)
@@ -56,11 +41,30 @@ class EntryFrame(tk.Frame):
                     width= 2,
                     text= "▼", font= font2,
                     bd=1, relief= "raised",
-                    command= lambda: decrement(self.entry),
+                    command= lambda: self.decrement(self.entry),
                     repeatdelay= 100, repeatinterval= 120,
                     )
         dwn_btn.pack(side=tk.BOTTOM)
 
+
+    # entryの数値を上げ下げする関数
+    def increment(self, entry:tk.Entry):
+        current_value = entry.get()
+        if current_value.lstrip("-").isdigit():
+            new_value = int(current_value) + 1
+            entry.delete(0, tk.END)
+            entry.insert(0, str(new_value))
+
+    def decrement(self, entry:tk.Entry):
+        current_value = entry.get()
+        if current_value.lstrip("-").isdigit():
+            new_value = int(current_value) - 1
+            entry.delete(0, tk.END)
+            entry.insert(0, str(new_value))
+
+
+    def get_value(self):
+        return self.entry.get()
 
 
 class MainFrame(tk.Frame):
@@ -124,8 +128,8 @@ class MainFrame(tk.Frame):
         del enemy_data[0]
 
         for i in range( len(ally_data) ):
-            ally_data[i]  = ally_data[i].entry.get()
-            enemy_data[i] = enemy_data[i].entry.get()
+            ally_data[i]  = ally_data[i].get_value()
+            enemy_data[i] = enemy_data[i].get_value()
 
         # coin_sim で計算した結果を取得
         result1,result2 = lccs.calcutate(ally_data, enemy_data)
