@@ -1,11 +1,12 @@
 """ LCCS GUI ver. """
 
+import csv
 import tkinter as tk
 import coin_sim as lccs
 
 # 文字フォントを設定
-font1 = ("Meiryo",10)
-font2 = ("",7)
+mainfont = ("Meiryo",10)
+buttonfont = ("",7)
 
 
 
@@ -21,7 +22,7 @@ class EntryFrame(tk.Frame):
     def create_widget(self):
         self.entry = tk.Entry(self,
                     width= 10,
-                    font= font1,
+                    font= mainfont,
                     justify= tk.CENTER,
                     bd= 2, relief= "flat",
                     )
@@ -30,7 +31,7 @@ class EntryFrame(tk.Frame):
 
         up_btn = tk.Button(self,
                     width= 2,
-                    text= "▲", font= font2,
+                    text= "▲", font= buttonfont,
                     bd=1, relief= "raised",
                     command= lambda: self.increment(self.entry),
                     repeatdelay= 100, repeatinterval= 120,
@@ -39,13 +40,12 @@ class EntryFrame(tk.Frame):
 
         dwn_btn = tk.Button(self,
                     width= 2,
-                    text= "▼", font= font2,
+                    text= "▼", font= buttonfont,
                     bd=1, relief= "raised",
                     command= lambda: self.decrement(self.entry),
                     repeatdelay= 100, repeatinterval= 120,
                     )
         dwn_btn.pack(side=tk.BOTTOM)
-
 
     # entryの数値を上げ下げする関数
     def increment(self, entry:tk.Entry):
@@ -62,13 +62,65 @@ class EntryFrame(tk.Frame):
             entry.delete(0, tk.END)
             entry.insert(0, str(new_value))
 
-
+    # エントリの値を返す
     def get_value(self):
         return self.entry.get()
 
+    # エントリに値を入れる
+    def enter_value(self, value:str):
+        self.entry.delete(0,tk.END)
+        self.entry.insert(0,value)
+
+
+
+class DataFrame(tk.Frame):
+    def __init__(self, master, filepath):
+        super().__init__(master,
+            padx= 10, pady= 10,
+        )
+        # csv読み込み
+        with open(filepath, newline= "", encoding= "utf-8_sig") as cf:
+            reader = csv.reader(cf)
+            # リストボックスに追加する初期値
+            self.data = list(reader)
+
+        self.make_widget()
+        self.init_listbox(self.data)
+
+
+    def make_widget(self):
+        self.listbox = tk.Listbox(self,
+            font= mainfont,
+            width= 30, height= 12,
+            selectmode= "single",
+        )
+        self.listbox.pack(side= tk.LEFT,
+            )
+        scrollbar = tk.Scrollbar(self,
+            orient= tk.VERTICAL,
+            command= self.listbox.yview,
+        )
+        self.listbox["yscrollcommand"] = scrollbar.set
+        scrollbar.pack(side= tk.LEFT, fill= tk.Y)
+
+
+    def init_listbox(self, data:list[list[str]]):
+        for value in data:
+            self.listbox.insert(tk.END, value[0])
+
+    def get_skill_data(self) -> list[str]:
+        # 選択されている項目のインデックスを取得
+        indexes = self.listbox.curselection()
+        # curselectionを使うと選択した項目のインデックスをタプルとして取得する
+        if len(indexes) != 1:
+            return
+
+        return self.data[indexes[0]]
+
+
 
 class MainFrame(tk.Frame):
-    def __init__(self, master):
+    def __init__(self, master, csvpath):
         super().__init__(master,
             padx= 20,
             pady= 20,
@@ -76,26 +128,27 @@ class MainFrame(tk.Frame):
         self.create_widget()
         self.create_button()
         self.create_output()
+        self.create_skill_list(csvpath)
 
     # ヘッダーと入力欄の作成
     def create_widget(self):
         row0 = []
-        self.row1:list[tk.Label|tk.Frame] = []
-        self.row2:list[tk.Label|tk.Frame] = []
+        self.row1:list[tk.Label|EntryFrame] = []
+        self.row2:list[tk.Label|EntryFrame] = []
 
         text1 = ("","基礎威力","コイン威力","コイン枚数","精神力")
         for text in text1:
             row0.append(tk.Label(self,
                 text= text,
-                font= font1,
+                font= mainfont,
                 width= 8,
                 ))
 
         self.row1.append(tk.Label(self, width= 8,
-                text= "味方スキル", font= font1,)
+                text= "味方スキル", font= mainfont,)
                 )
         self.row2.append(tk.Label(self, width= 8,
-                text= "敵スキル", font= font1,)
+                text= "敵スキル", font= mainfont,)
                 )
         for i in range(4):
             self.row1.append(EntryFrame(self))
@@ -109,11 +162,31 @@ class MainFrame(tk.Frame):
                 table[r][c].grid(row= r, column= c)
 
 
+    def create_skill_list(self, csvpath):
+        self.lb = DataFrame(self,csvpath)
+        self.lb.grid(row=0, column= 6,
+            rowspan= 5,
+        )
+
+        btn = tk.Button(self,
+            text= "<-", font= mainfont,
+            command= self.skill_input,
+        )
+        btn.grid(row= 1, column= 5,
+            padx=5,
+        )
+
+    def skill_input(self):
+        skill_data = self.lb.get_skill_data()
+        for i in range(1,4):
+            self.row1[i].enter_value(skill_data[i])
+
+
+
     # 演算ボタンの作成
     def create_button(self):
         btn = tk.Button(self,
-            text= "演算",
-            font= font1,
+            text= "演算", font= mainfont,
             width= 10,
             command= self.execute
             )
@@ -155,7 +228,6 @@ class MainFrame(tk.Frame):
             self.result_text["text"] = (
                 "不明なエラーです。開発者へご報告下さい。")
             self.result_text["fg"] = "red"
-            self.result_text["bg"] = "black"
 
         return "break"
 
@@ -165,7 +237,7 @@ class MainFrame(tk.Frame):
         self.result_text = tk.Label(self,
             text= ( "初回勝率: -----%\n"
                     "最終勝率: -----%" ),
-            font= font1,
+            font= mainfont,
             )
         self.result_text.grid(row= 4, column= 0, columnspan= 5, pady= 10)
 
@@ -175,11 +247,14 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Limbus Company Coin Simulator")
-        self.geometry("550x250")
+        # self.geometry("550x250")
+
+        csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"
 
         #フレームを配置
-        frame = MainFrame(self)
-        frame.pack()
+        frame1 = MainFrame(self, csvpath)
+        frame1.pack(side= tk.LEFT)
+
 
 
 
