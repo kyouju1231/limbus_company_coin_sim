@@ -6,6 +6,7 @@ import coin_sim as lccs
 
 # 文字フォントを設定
 mainfont = ("Meiryo",10)
+boldfont = ("Meiryo",10,"bold")
 buttonfont = ("",7)
 
 
@@ -108,14 +109,15 @@ class DataFrame(tk.Frame):
         for value in data:
             self.listbox.insert(tk.END, value[0])
 
-    def get_skill_data(self) -> list[str]:
-        # 選択されている項目のインデックスを取得
-        indexes = self.listbox.curselection()
-        # curselectionを使うと選択した項目のインデックスをタプルとして取得する
-        if len(indexes) != 1:
+    def get_skill_data(self) -> list[str]|None:
+        # リストボックスの選択中の項目のインデックスを取得
+        indexes:tuple = self.listbox.curselection()
+        if len(indexes) == 1:
+            # 要素数が1の場合のみインデックスを返す
+            return self.data[indexes[0]]
+        else:
+            # 要素数0の場合や2以上ならNoneを返す
             return
-
-        return self.data[indexes[0]]
 
 
 
@@ -162,25 +164,41 @@ class MainFrame(tk.Frame):
                 table[r][c].grid(row= r, column= c)
 
 
+    # スキルリストとエントリに入力するボタンを作成
     def create_skill_list(self, csvpath):
         self.lb = DataFrame(self,csvpath)
         self.lb.grid(row=0, column= 6,
             rowspan= 5,
         )
 
-        btn = tk.Button(self,
-            text= "<-", font= mainfont,
-            command= self.skill_input,
+        a_btn = tk.Button(self,
+            text= "←", font= boldfont,
+            command= lambda: self.skill_input("ally"),
         )
-        btn.grid(row= 1, column= 5,
-            padx=5,
-        )
+        a_btn.grid(row= 1, column= 5, padx=5,)
 
-    def skill_input(self):
+        e_btn = tk.Button(self,
+            text= "←", font= boldfont,
+            command= lambda: self.skill_input("enemy"),
+        )
+        e_btn.grid(row= 2, column= 5, padx=5,)
+
+    def skill_input(self, ally_or_enemy:str):
         skill_data = self.lb.get_skill_data()
-        for i in range(1,4):
-            self.row1[i].enter_value(skill_data[i])
+        if  skill_data :    # 何かしらの値が入っていればエントリへ入力
 
+            if ally_or_enemy == "ally":
+                # 味方スキルへ入力
+                for i in range(1,4):
+                    self.row1[i].enter_value(skill_data[i])
+
+            elif ally_or_enemy == "enemy":
+                # 敵スキルへ入力
+                for i in range(1,4):
+                    self.row2[i].enter_value(skill_data[i])
+
+            else:
+                pass
 
 
     # 演算ボタンの作成
