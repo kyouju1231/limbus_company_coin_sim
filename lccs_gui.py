@@ -2,6 +2,8 @@
 
 import csv
 import tkinter as tk
+import tkinter.simpledialog as sd
+import tkinter.messagebox as ms
 import coin_sim as lccs
 
 # 文字フォントを設定
@@ -104,21 +106,36 @@ class DataFrame(tk.Frame):
         self.listbox["yscrollcommand"] = scrollbar.set
         scrollbar.pack(side= tk.LEFT, fill= tk.Y)
 
-
+    # csvから読み込んだデータをリストボックスに入力
     def init_listbox(self, data:list[list[str]]):
+        self.listbox.delete(0,tk.END)
         for value in data:
             self.listbox.insert(tk.END, value[0])
 
+    # リストボックスの選択中の項目のスキルデータを返す
     def get_skill_data(self) -> list[str]|None:
-        # リストボックスの選択中の項目のインデックスを取得
+        # インデックスを取得 -> (n,)
         indexes:tuple = self.listbox.curselection()
         if len(indexes) == 1:
-            # 要素数が1の場合のみインデックスを返す
+            # 要素数が1の場合のみデータを返す
             return self.data[indexes[0]]
         else:
-            # 要素数0の場合や2以上ならNoneを返す
+            # 要素数0ならNoneを返す
             return
 
+    # リストボックスにスキルを登録
+    def add_skill_data(self, skill_data:list):
+        text = ( "このスキルを登録しますか？\n"
+                f"スキル名: {skill_data[0]}\n"
+                f"基礎威力: {skill_data[1]}\n"
+                f"コイン威力: {skill_data[2]}\n"
+                f"コイン枚数: {skill_data[3]}\n")
+
+        if ms.askokcancel("確認", text):
+            self.data.append(skill_data)
+            self.init_listbox(self.data)
+        else:
+            pass
 
 
 class MainFrame(tk.Frame):
@@ -164,26 +181,38 @@ class MainFrame(tk.Frame):
                 table[r][c].grid(row= r, column= c)
 
 
-    # スキルリストとエントリに入力するボタンを作成
+    # スキルリストとエントリに入出力するボタン
     def create_skill_list(self, csvpath):
         self.lb = DataFrame(self,csvpath)
-        self.lb.grid(row=0, column= 6,
+        self.lb.grid(row=0, column= 7,
             rowspan= 5,
         )
 
-        a_btn = tk.Button(self,
+        a_read_btn = tk.Button(self,
             text= "←", font= boldfont,
-            command= lambda: self.skill_input("ally"),
+            command= lambda: self.skill_read("ally"),
         )
-        a_btn.grid(row= 1, column= 5, padx=5,)
+        a_read_btn.grid(row= 1, column= 5, padx=5,)
 
-        e_btn = tk.Button(self,
+        e_read_btn = tk.Button(self,
             text= "←", font= boldfont,
-            command= lambda: self.skill_input("enemy"),
+            command= lambda: self.skill_read("enemy"),
         )
-        e_btn.grid(row= 2, column= 5, padx=5,)
+        e_read_btn.grid(row= 2, column= 5, padx= 5,)
 
-    def skill_input(self, ally_or_enemy:str):
+        a_write_btn = tk.Button(self,
+            text= "→", font= boldfont,
+            command= lambda: self.skill_write("ally"),
+        )
+        a_write_btn.grid(row= 1, column= 6, padx= 5,)
+
+        a_write_btn = tk.Button(self,
+            text= "→", font= boldfont,
+            command= lambda: self.skill_write("enemy"),
+        )
+        a_write_btn.grid(row= 2, column= 6, padx= 5,)
+
+    def skill_read(self, ally_or_enemy:str):
         skill_data = self.lb.get_skill_data()
         if  skill_data :    # 何かしらの値が入っていればエントリへ入力
 
@@ -197,8 +226,28 @@ class MainFrame(tk.Frame):
                 for i in range(1,4):
                     self.row2[i].enter_value(skill_data[i])
 
+    def skill_write(self, ally_or_enemy:str):
+        skill_data = ["",]
+        # 現在のエントリの値を取得してリストに格納
+        for i in range(1,4):
+            if ally_or_enemy == "ally":
+                skill_data.append( self.row1[i].get_value() )
+            if ally_or_enemy == "enemy":
+                skill_data.append( self.row2[i].get_value() )
+            # skill_data = [名前, 基礎威力, コイン威力, コイン枚数]
+
+        if int(skill_data[3]) < 1:
+            # コイン枚数が0以下
+            ms.showerror("error","コイン枚数が不正です")
+        else:
+            skill_data[0] = sd.askstring("登録",
+                "スキル名を入力してください",initialvalue= "skill")
+
+            if skill_data[0]:
+                self.lb.add_skill_data(skill_data)
             else:
-                pass
+                # スキル名が空欄
+                ms.showerror("error","スキル名を入力して下さい")
 
 
     # 演算ボタンの作成
