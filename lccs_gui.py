@@ -315,13 +315,20 @@ class App(tk.Tk):
         super().__init__()
         self.title("Limbus Company Coin Simulator")
         # self.geometry("550x250")
+        self.protocol("WM_DELETE_WINDOW",lambda: self.on_closing(csvpath))
 
         csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"
 
         #フレームを配置
-        frame1 = MainFrame(self, csvpath)
-        frame1.pack(side= tk.LEFT)
+        self.frame1 = MainFrame(self, csvpath)
+        self.frame1.pack(side= tk.LEFT)
 
+    def on_closing(self, path):
+        with open(path, mode= "w", newline= "",encoding= "utf-8_sig") as cf:
+            writer = csv.writer(cf)
+            writer.writerows(self.frame1.lb.data)
+
+        self.destroy()
 
 
 
