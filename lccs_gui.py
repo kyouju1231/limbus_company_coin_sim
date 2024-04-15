@@ -97,16 +97,35 @@ class DataFrame(tk.Frame):
             width= 30, height= 12,
             selectmode= "single",
         )
-        self.listbox.pack(side= tk.LEFT,
-            )
+        self.listbox.grid(row= 0, column= 0,
+            columnspan= 2,
+        )
         scrollbar = tk.Scrollbar(self,
             orient= tk.VERTICAL,
             command= self.listbox.yview,
         )
         self.listbox["yscrollcommand"] = scrollbar.set
-        scrollbar.pack(side= tk.LEFT, fill= tk.Y)
+        scrollbar.grid(row= 0, column= 3,
+        )
 
-    # csvから読み込んだデータをリストボックスに入力
+        del_btn = tk.Button(self,
+        text= "削除", font= mainfont,
+        width= 10,
+        command= self.del_skill_data,
+        )
+        del_btn.grid(row= 1, column= 0
+        )
+
+        ren_btn = tk.Button(self,
+        text= "リネーム", font= mainfont,
+        width= 10,
+        command= self.rename_skill_data,
+        )
+        ren_btn.grid(row= 1, column= 1
+        )
+
+
+    # データをリストボックスに反映
     def init_listbox(self, data:list[list[str]]):
         self.listbox.delete(0,tk.END)
         for value in data:
@@ -134,8 +153,28 @@ class DataFrame(tk.Frame):
         if ms.askokcancel("確認", text):
             self.data.append(skill_data)
             self.init_listbox(self.data)
-        else:
-            pass
+
+    def del_skill_data(self):
+        # インデックスを取得 -> (n,)
+        indexes:tuple = self.listbox.curselection()
+        if len(indexes) == 1:
+            del self.data[ indexes[0] ]
+            self.init_listbox(self.data)
+
+    def rename_skill_data(self):
+        # インデックスを取得 -> (n,)
+        indexes:tuple = self.listbox.curselection()
+        if len(indexes) == 1:
+            new_name = ""
+            while new_name == "":
+                new_name = sd.askstring("リネーム",
+                    "スキル名を入力してください", initialvalue= "skill")
+
+            index = indexes[0]
+            self.data[index][0] = new_name
+
+            self.init_listbox(self.data)
+
 
 
 class MainFrame(tk.Frame):
