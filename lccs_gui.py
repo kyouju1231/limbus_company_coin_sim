@@ -107,6 +107,7 @@ class DataFrame(tk.Frame):
         )
         self.listbox["yscrollcommand"] = scrollbar.set
         scrollbar.grid(row= 0, column= 3,
+            sticky= tk.N + tk.S,
         )
 
         del_btn = tk.Button(self,
