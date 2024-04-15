@@ -1,6 +1,7 @@
 """ LCCS GUI ver. """
 
 import csv
+import os
 import tkinter as tk
 import tkinter.simpledialog as sd
 import tkinter.messagebox as ms
@@ -356,12 +357,18 @@ class App(tk.Tk):
         # self.geometry("550x250")
         self.protocol("WM_DELETE_WINDOW",lambda: self.on_closing(csvpath))
 
-        # csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"
         csvpath = "data.csv"
+        # csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"  # デバッグ用パス
 
-        #フレームを配置
-        self.frame1 = MainFrame(self, csvpath)
-        self.frame1.pack(side= tk.LEFT)
+        # data.csvが同じディレクトリに無い時に終了する
+        if not os.path.exists(csvpath):
+            ms.showerror("Error",f"{csvpath}が見つかりません")
+            self.destroy()
+        else:
+            #フレームを配置
+            self.frame1 = MainFrame(self, csvpath)
+            self.frame1.pack(side= tk.LEFT)
+
 
     def on_closing(self, path):
         with open(path, mode= "w", newline= "",encoding= "utf-8_sig") as cf:
