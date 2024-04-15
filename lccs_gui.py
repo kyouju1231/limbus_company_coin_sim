@@ -356,7 +356,8 @@ class App(tk.Tk):
         # self.geometry("550x250")
         self.protocol("WM_DELETE_WINDOW",lambda: self.on_closing(csvpath))
 
-        csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"
+        # csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"
+        csvpath = "data.csv"
 
         #フレームを配置
         self.frame1 = MainFrame(self, csvpath)
