@@ -88,7 +88,7 @@ class DataFrame(tk.Frame):
             "スキル名を入力してください", initialvalue= "skill")
 
         if skill_name:
-            skill_data[0] = skill_name  # 先頭にスキル名を追加
+            skill_data[0] = skill_name
         else:
             ms.showerror("error","スキル名を入力してください")
             return self.add_skill_data(skill_data)

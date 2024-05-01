@@ -1,9 +1,7 @@
 """ LCCS GUI ver. """
 
-import csv
 import os
 import tkinter as tk
-import tkinter.simpledialog as sd
 import tkinter.messagebox as ms
 import coin_sim as lccs
 
