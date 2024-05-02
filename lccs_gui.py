@@ -11,6 +11,8 @@ from font_setting import *
 from frame_i import InputFrame
 from frame_d import DataFrame
 
+from class_skill_data import SkillData
+
 
 class MainFrame(tk.Frame):
     def __init__(self, master, csvpath):
@@ -87,8 +89,6 @@ class MainFrame(tk.Frame):
     def skill_read(self, ally_enemy):
         # スキル一覧からスキルデータを取得
         skill = self.data_frame.get_skill_data()
-            # skill = [name, base_power, coin_power, coin_count]
-
         self.input_frame.enter_entry_values(skill, ally_enemy)
 
 
@@ -96,10 +96,6 @@ class MainFrame(tk.Frame):
     def skill_write(self, ally_enemy):
         # 入力欄からスキルデータを取得
         skill = self.input_frame.get_entry_values(ally_enemy)
-            # skill = [base_power, coin_power, coin_count, mental]
-
-        del skill[-1]   # 精神力の値を削除
-        skill.insert(0, "name") # 先頭にスキル名用の要素を追加
         self.data_frame.add_skill_data(skill)
 
 

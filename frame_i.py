@@ -6,6 +6,8 @@ import tkinter.messagebox as ms
 
 from font_setting import *
 
+from class_skill_data import SkillData
+
 
 # 入力欄と横のボタンをフレームにまとめる
 class EntryFrame(tk.Frame):
@@ -62,8 +64,8 @@ class EntryFrame(tk.Frame):
 
 
     # エントリの値を返す
-    def get_value(self):
-        return self.entry.get()
+    def get_value(self) -> int:
+        return int(self.entry.get())
 
 
     # エントリに値を入れる
@@ -119,7 +121,7 @@ class InputFrame(tk.Frame):
 
 
     # エントリの値を取得
-    def get_entry_values(self, ally_enemy) -> list[str]:
+    def get_entry_values(self, ally_enemy) -> SkillData:
         if ally_enemy == "ally":
             data:list[EntryFrame] = list(self.row1)
         elif ally_enemy == "enemy":
@@ -127,22 +129,26 @@ class InputFrame(tk.Frame):
 
         del data[0]     # 列見出しのラベルを削除
 
-        for i in range( len(data) ):
-            data[i] = data[i].get_value()
+        skill_data = SkillData(
+            base_power= data[0].get_value(),
+            coin_power= data[1].get_value(),
+            coin_count= data[2].get_value()
+        )
 
-        return data
+        return skill_data
 
 
     # エントリへ値を入力
-    def enter_entry_values(self, data:list, ally_enemy):
-        # data = [name, base_power, coin_power, coin_count]
-        if len(data) == 4:
-            if ally_enemy == "ally":
-                for i in range(1,4):
-                    self.row1[i].enter_value( data[i] )
-            elif ally_enemy == "enemy":
-                for i in range(1,4):
-                    self.row2[i].enter_value( data[i] )
+    def enter_entry_values(self, data:SkillData, ally_enemy):
+        if ally_enemy == "ally":
+            self.row1[1].enter_value( data.get(SkillData.BP) )
+            self.row1[2].enter_value( data.get(SkillData.CP) )
+            self.row1[3].enter_value( data.get(SkillData.CC) )
+        elif ally_enemy == "enemy":
+            self.row2[1].enter_value( data.get(SkillData.BP) )
+            self.row2[2].enter_value( data.get(SkillData.CP) )
+            self.row2[3].enter_value( data.get(SkillData.CC) )
+
 
     # スキルリストからエントリに入出力するボタンを作成
     def create_button(self, master):

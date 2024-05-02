@@ -5,6 +5,8 @@ import tkinter as tk
 import tkinter.simpledialog as sd
 import tkinter.messagebox as ms
 
+from class_skill_data import SkillData
+
 from font_setting import *
 
 
@@ -16,8 +18,14 @@ class DataFrame(tk.Frame):
         # csv読み込み
         with open(filepath, newline= "", encoding= "utf-8_sig") as cf:
             reader = csv.reader(cf)
-            # リストボックスに追加する初期値
-            self.data = list(reader)
+            self.data:list[SkillData] = []
+            for row in reader:
+                self.data.append(SkillData(
+                    base_power= row[0],
+                    coin_power= row[1],
+                    coin_count= row[2],
+                    name= row[3])
+                )
 
         self.make_widget()
         self.init_listbox()
@@ -62,24 +70,24 @@ class DataFrame(tk.Frame):
     def init_listbox(self):
         self.listbox.delete(0,tk.END)
         for value in self.data:
-            self.listbox.insert(tk.END, value[0])
+            self.listbox.insert(tk.END, value.get(SkillData.NM))
 
 
     # リストボックスの選択中のスキルのスキルデータを返す
-    def get_skill_data(self) -> list[str]|None:
+    def get_skill_data(self) -> SkillData|None:
         indexes:tuple = self.listbox.curselection()
         # インデックスを取得 -> (index,)
         if len(indexes) == 1:
-            # 要素数が1の場合のみデータを返す
-            return self.data[indexes[0]]
+            index = indexes[0]
+            return self.data[index]
         else:
-            # 要素数0ならNoneを返す
+            # 選択中の項目が0ならNoneを返す
             return
 
 
     # リストボックスにスキルを登録
-    def add_skill_data(self, skill_data:list):
-        if int(skill_data[3]) < 1:
+    def add_skill_data(self, skill_data:SkillData):
+        if skill_data.get(SkillData.CC) < 1:
             # コイン枚数が0以下
             ms.showerror("error","コイン枚数が不正です")
             return
@@ -88,16 +96,16 @@ class DataFrame(tk.Frame):
             "スキル名を入力してください", initialvalue= "skill")
 
         if skill_name:
-            skill_data[0] = skill_name
+            skill_data.set(SkillData.NM, skill_name)
         else:
             ms.showerror("error","スキル名を入力してください")
             return self.add_skill_data(skill_data)
 
         text = ( "このスキルを登録しますか？\n"
-                f"スキル名: {skill_data[0]}\n"
-                f"基礎威力: {skill_data[1]}\n"
-                f"コイン威力: {skill_data[2]}\n"
-                f"コイン枚数: {skill_data[3]}\n")
+                f"スキル名: {skill_data.get(SkillData.NM)}\n"
+                f"基礎威力: {skill_data.get(SkillData.BP)}\n"
+                f"コイン威力: {skill_data.get(SkillData.CP)}\n"
+                f"コイン枚数: {skill_data.get(SkillData.CC)}\n")
 
         if ms.askokcancel("確認", text):
             self.data.append(skill_data)
@@ -115,16 +123,18 @@ class DataFrame(tk.Frame):
 
     # リストボックスの選択中のスキルをリネーム
     def rename_skill_data(self):
-        # インデックスを取得 -> (n,)
-        indexes:tuple = self.listbox.curselection()
+        # 選択中の項目のインデックスを取得 -> (n,)
+        indexes:tuple[int] = self.listbox.curselection()
+
         if len(indexes) == 1:
             new_name = ""
+
             while new_name == "":
                 new_name = sd.askstring("リネーム",
                     "スキル名を入力してください", initialvalue= "skill")
 
             index = indexes[0]
-            self.data[index][0] = new_name
+            self.data[index].set(SkillData.NM,new_name)
 
             self.init_listbox()
 
@@ -133,5 +143,11 @@ class DataFrame(tk.Frame):
     def on_closing(self, path):
         with open(path, mode= "w", newline= "",encoding= "utf-8_sig") as cf:
             writer = csv.writer(cf)
-            writer.writerows(self.data)
+            for skill_data in self.data:
+                row = [ skill_data.get(SkillData.BP),
+                        skill_data.get(SkillData.CP),
+                        skill_data.get(SkillData.CC),
+                        skill_data.get(SkillData.NM),
+                        ]
+                writer.writerow(row)
 
