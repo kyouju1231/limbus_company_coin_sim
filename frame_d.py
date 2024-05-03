@@ -21,10 +21,10 @@ class DataFrame(tk.Frame):
             self.data:list[SkillData] = []
             for row in reader:
                 self.data.append(SkillData(
-                    base_power= row[0],
-                    coin_power= row[1],
-                    coin_count= row[2],
-                    name= row[3])
+                    base_power= row[1],
+                    coin_power= row[2],
+                    coin_count= row[3],
+                    name= row[0])
                 )
 
         self.make_widget()
@@ -144,10 +144,10 @@ class DataFrame(tk.Frame):
         with open(path, mode= "w", newline= "",encoding= "utf-8_sig") as cf:
             writer = csv.writer(cf)
             for skill_data in self.data:
-                row = [ skill_data.get(SkillData.BP),
+                row = [ skill_data.get(SkillData.NM),
+                        skill_data.get(SkillData.BP),
                         skill_data.get(SkillData.CP),
                         skill_data.get(SkillData.CC),
-                        skill_data.get(SkillData.NM),
                         ]
                 writer.writerow(row)
 
