@@ -88,14 +88,19 @@ class MainFrame(tk.Frame):
     # スキル一覧から入力欄へ入力する処理
     def skill_read(self, ally_enemy):
         # スキル一覧からスキルデータを取得
-        skill = self.data_frame.get_skill_data()
+        skill:SkillData = self.data_frame.get_skill_data()
         self.input_frame.enter_entry_values(skill, ally_enemy)
 
 
     # 入力欄からスキル一覧へ登録する処理
     def skill_write(self, ally_enemy):
         # 入力欄からスキルデータを取得
-        skill = self.input_frame.get_entry_values(ally_enemy)
+        data = self.input_frame.get_entry_values(ally_enemy)
+        skill = SkillData(
+            base_power= data[0],
+            coin_power= data[1],
+            coin_count= data[2]
+            )
         self.data_frame.add_skill_data(skill)
 
 

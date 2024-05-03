@@ -121,7 +121,8 @@ class InputFrame(tk.Frame):
 
 
     # エントリの値を取得
-    def get_entry_values(self, ally_enemy) -> SkillData:
+    def get_entry_values(self, ally_enemy) -> list:
+        """ -> [bp, cp, cc, men] """
         if ally_enemy == "ally":
             data:list[EntryFrame] = list(self.row1)
         elif ally_enemy == "enemy":
@@ -129,13 +130,10 @@ class InputFrame(tk.Frame):
 
         del data[0]     # 列見出しのラベルを削除
 
-        skill_data = SkillData(
-            base_power= data[0].get_value(),
-            coin_power= data[1].get_value(),
-            coin_count= data[2].get_value()
-        )
+        for i in range(4):
+            data[i] = data[i].get_value()
 
-        return skill_data
+        return data
 
 
     # エントリへ値を入力
