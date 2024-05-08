@@ -9,17 +9,17 @@ class Database:
         self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = self.cur.fetchall()    # -> list[ tuple(table neme,) ]
 
-        if  any('skills' in table for table in tables) :
+        if  not any('skills' in table for table in tables) :
             # skillsテーブルが無ければ作成
             self.cur.execute(
                 "CREATE TABLE skills("
-                    "id INTEGER PRIMARY KEY"
+                    "id INTEGER PRIMARY KEY,"
                     "base_power INTEGER,"
                     "coin_power INTEGER,"
                     "coin_count INTEGER,"
                     "name TEXT,"
                     "prisoner TEXT)"
-            )
+                    )
 
 
     def get_name_and_id(self) -> list[tuple]:
@@ -35,19 +35,23 @@ class Database:
 
 
     def add_skill(self, skill:tuple):
-        # skill = [id, base_power, coin_power, coin_count, name, prisoner]
-        self.cur.execute("INSERT INTO skills value(?,?,?,?,?);",skill)
+        self.cur.execute(
+            "INSERT INTO "
+            "skills(base_power, coin_power, coin_count, name, prisoner) "
+            "VALUES(?,?,?,?,?);",skill
+            )
         self.conn.commit()
 
 
     def delete_skill(self, id:int):
         self.cur.execute(f"DELETE FROM skills WHERE id={id};")
+        # 無いIDを指定しても何も起こらない
         self.conn.commit()
 
 
     def change_skill_name(self, id:int, new_name:str):
-        self.cur.execute(f"UPDATE skills SET name={new_name} WHERE id={id}")
-
+        self.cur.execute(f"UPDATE skills SET name='{new_name}' WHERE id={id}")
+        self.conn.commit()
 
     def on_closing(self):
         self.conn.close()
