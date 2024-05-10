@@ -1,31 +1,24 @@
 """ スキル一覧フレーム """
 
-import csv
 import tkinter as tk
 import tkinter.simpledialog as sd
 import tkinter.messagebox as ms
 
-from class_skill_data import SkillData
+from database import Database as DB
 
 from font_setting import *
 
 
 class DataFrame(tk.Frame):
+    """ スキル一覧を表示するためのフレーム """
     def __init__(self, master, filepath):
         super().__init__(master,
             padx= 10, pady= 10,
         )
-        # csv読み込み
-        with open(filepath, newline= "", encoding= "utf-8_sig") as cf:
-            reader = csv.reader(cf)
-            self.data:list[SkillData] = []
-            for row in reader:
-                self.data.append(SkillData(
-                    base_power= row[1],
-                    coin_power= row[2],
-                    coin_count= row[3],
-                    name= row[0])
-                )
+
+        # DBへアクセス
+        self.db = DB(filepath)
+
 
         self.make_widget()
         self.init_listbox()
@@ -66,28 +59,34 @@ class DataFrame(tk.Frame):
         )
 
 
-    # スキルデータ群とリストボックスを同期
     def init_listbox(self):
+        """ self.id_name_listとself.listboxを同期 """
         self.listbox.delete(0,tk.END)
-        for value in self.data:
-            self.listbox.insert(tk.END, value.get(SkillData.NM))
+
+        self.id_name_list = self.db.get_id_and_name()
+
+        for value in self.id_name_list:
+            self.listbox.insert(tk.END, value[0])
 
 
-    # リストボックスの選択中のスキルのスキルデータを返す
-    def get_skill_data(self) -> SkillData|None:
+    def get_skill_data(self) -> tuple|None:
+        """ self.listboxの選択中のスキルのデータを得る\n
+            -> (ID, BP, CP, CC, NM, PR) """
         indexes:tuple = self.listbox.curselection()
-        # インデックスを取得 -> (index,)
+        # listboxの選択中のスキルのインデックスを取得 -> (index,)
         if len(indexes) == 1:
             index = indexes[0]
-            return self.data[index]
+            id = self.id_name_list[index][0]
+            return self.db.get_skill_data(id)
         else:
             # 選択中の項目が0ならNoneを返す
             return
 
 
-    # リストボックスにスキルを登録
-    def add_skill_data(self, skill_data:SkillData):
-        if skill_data.get(SkillData.CC) < 1:
+    def add_skill_data(self, skill_data:tuple):
+        """ DBへスキルを登録、listboxを更新\n
+            skill_data = (BP, CP, CC, Men)"""
+        if skill_data[2] < 1:
             # コイン枚数が0以下
             ms.showerror("error","コイン枚数が不正です")
             return
@@ -95,36 +94,38 @@ class DataFrame(tk.Frame):
         skill_name = sd.askstring("登録",
             "スキル名を入力してください", initialvalue= "skill")
 
-        if skill_name:
-            skill_data.set(SkillData.NM, skill_name)
-        else:
+        if not skill_name:
             ms.showerror("error","スキル名を入力してください")
             return self.add_skill_data(skill_data)
 
         text = ( "このスキルを登録しますか？\n"
-                f"スキル名: {skill_data.get(SkillData.NM)}\n"
-                f"基礎威力: {skill_data.get(SkillData.BP)}\n"
-                f"コイン威力: {skill_data.get(SkillData.CP)}\n"
-                f"コイン枚数: {skill_data.get(SkillData.CC)}\n")
+                f"スキル名: {skill_name}\n"
+                f"基礎威力: {skill_data[0]}\n"
+                f"コイン威力: {skill_data[1]}\n"
+                f"コイン枚数: {skill_data[2]}\n")
 
         if ms.askokcancel("確認", text):
-            self.data.append(skill_data)
+            skill_data = (skill_data[0], skill_data[1], skill_data[2], skill_name, None)
+            # tupleのデータを整えてDBへ渡す
+            self.db.add_skill(skill_data)
             self.init_listbox()
 
 
-    # リストボックスから選択中のスキルを削除
     def del_skill_data(self):
-        # インデックスを取得 -> (index,)
-        indexes:tuple = self.listbox.curselection()
+        """ リストボックスから選択中のスキルを削除 """
+        indexes = self.listbox.curselection()
+        # 選択中の項目のインデックスを取得 indexes = (index,)
+
         if len(indexes) == 1:
-            del self.data[ indexes[0] ]
+            id = self.id_name_list[ indexes[0] ]
+            self.db.delete_skill(id)
             self.init_listbox()
 
 
-    # リストボックスの選択中のスキルをリネーム
     def rename_skill_data(self):
-        # 選択中の項目のインデックスを取得 -> (n,)
-        indexes:tuple[int] = self.listbox.curselection()
+        """ リストボックスの選択中のスキルをリネーム """
+        indexes = self.listbox.curselection()
+        # 選択中の項目のインデックスを取得 indexes = (index,)
 
         if len(indexes) == 1:
             new_name = ""
@@ -133,21 +134,13 @@ class DataFrame(tk.Frame):
                 new_name = sd.askstring("リネーム",
                     "スキル名を入力してください", initialvalue= "skill")
 
-            index = indexes[0]
-            self.data[index].set(SkillData.NM,new_name)
+            id = self.id_name_list[ indexes[0] ]
+            self.db.rename_skill(id, new_name)
 
             self.init_listbox()
 
 
-    # アプリを閉じる時にスキルデータ群を保存する
-    def on_closing(self, path):
-        with open(path, mode= "w", newline= "",encoding= "utf-8_sig") as cf:
-            writer = csv.writer(cf)
-            for skill_data in self.data:
-                row = [ skill_data.get(SkillData.NM),
-                        skill_data.get(SkillData.BP),
-                        skill_data.get(SkillData.CP),
-                        skill_data.get(SkillData.CC),
-                        ]
-                writer.writerow(row)
+    def on_closing(self):
+        """ アプリを閉じる時にスキルデータ群を保存する """
+        self.db.on_closing()
 

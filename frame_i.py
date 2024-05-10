@@ -1,16 +1,12 @@
 """ 入力欄フレーム """
 
 import tkinter as tk
-import tkinter.simpledialog as sd
-import tkinter.messagebox as ms
 
 from font_setting import *
 
-from class_skill_data import SkillData
 
-
-# 入力欄と横のボタンをフレームにまとめる
 class EntryFrame(tk.Frame):
+    """ エントリと横の数値を上下させるボタンをまとめたウィジェット """
     def __init__(self,master):
         super().__init__(master,
                     background= "white",
@@ -47,8 +43,8 @@ class EntryFrame(tk.Frame):
         dwn_btn.pack(side=tk.BOTTOM)
 
 
-    # entryの数値を上げ下げする関数
     def increment(self, entry:tk.Entry):
+        """ エントリの数値を上げる関数 """
         current_value = entry.get()
         if current_value.lstrip("-").isdigit():
             new_value = int(current_value) + 1
@@ -56,6 +52,7 @@ class EntryFrame(tk.Frame):
             entry.insert(0, str(new_value))
 
     def decrement(self, entry:tk.Entry):
+        """ エントリの数値を下げる関数 """
         current_value = entry.get()
         if current_value.lstrip("-").isdigit():
             new_value = int(current_value) - 1
@@ -63,13 +60,13 @@ class EntryFrame(tk.Frame):
             entry.insert(0, str(new_value))
 
 
-    # エントリの値を返す
     def get_value(self) -> int:
+        """ エントリの値を返す """
         return int(self.entry.get())
 
 
-    # エントリに値を入れる
-    def enter_value(self, value:str):
+    def enter_value(self, value):
+        """ エントリに値を入れる """
         self.entry.delete(0,tk.END)
         self.entry.insert(0,value)
 
@@ -98,15 +95,15 @@ class InputFrame(tk.Frame):
                 text= text,
                 font= mainfont,
                 width= 8,
-                ))
+            ))
 
         # 2,3行目
         self.row1.append(tk.Label(self, width= 8,
-                text= "味方スキル", font= mainfont,)
-                )
+            text= "味方スキル", font= mainfont,)
+        )
         self.row2.append(tk.Label(self, width= 8,
-                text= "敵スキル", font= mainfont,)
-                )
+            text= "敵スキル", font= mainfont,)
+        )
         for i in range(4):
             self.row1.append(EntryFrame(self))
             self.row2.append(EntryFrame(self))
@@ -120,36 +117,39 @@ class InputFrame(tk.Frame):
                 table[r][c].grid(row= r, column= c)
 
 
-    # エントリの値を取得
-    def get_entry_values(self, ally_enemy) -> list:
-        """ -> [bp, cp, cc, men] """
+    def get_entry_values(self, ally_enemy) -> tuple:
+        """ エントリの値を取得\n
+            -> [BP, CP, CC, Men] """
         if ally_enemy == "ally":
-            data:list[EntryFrame] = list(self.row1)
+            tmp_data:list[EntryFrame] = list(self.row1)
         elif ally_enemy == "enemy":
-            data:list[EntryFrame] = list(self.row2)
+            tmp_data:list[EntryFrame] = list(self.row2)
 
-        del data[0]     # 列見出しのラベルを削除
+        del tmp_data[0]     # 列見出しのラベルを削除
 
-        for i in range(4):
-            data[i] = data[i].get_value()
+        data = (
+            tmp_data[0].get_value(),
+            tmp_data[1].get_value(),
+            tmp_data[2].get_value(),
+            tmp_data[3].get_value(),
+        )
 
         return data
 
 
-    # エントリへ値を入力
-    def enter_entry_values(self, data:SkillData, ally_enemy):
+    def enter_entry_values(self, data:tuple, ally_enemy):
+        """ エントリへ値を入力\n
+            data = (ID, BP, CP, CC, NM, PR)"""
         if ally_enemy == "ally":
-            self.row1[1].enter_value( data.get(SkillData.BP) )
-            self.row1[2].enter_value( data.get(SkillData.CP) )
-            self.row1[3].enter_value( data.get(SkillData.CC) )
+            for i in range(1,4):
+                self.row1[i].enter_value( data[i] )
         elif ally_enemy == "enemy":
-            self.row2[1].enter_value( data.get(SkillData.BP) )
-            self.row2[2].enter_value( data.get(SkillData.CP) )
-            self.row2[3].enter_value( data.get(SkillData.CC) )
+            for i in range(1,4):
+                self.row2[i].enter_value( data[i] )
 
 
-    # スキルリストからエントリに入出力するボタンを作成
     def create_button(self, master):
+        """ スキルリストからエントリに入出力するボタンを作成 """
         # master :MainFrame
         ally_read_btn = tk.Button(self,
             text= "←", font= boldfont,

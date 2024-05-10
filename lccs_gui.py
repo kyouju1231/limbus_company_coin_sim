@@ -11,25 +11,23 @@ from font_setting import *
 from frame_i import InputFrame
 from frame_d import DataFrame
 
-from class_skill_data import SkillData
-
 
 class MainFrame(tk.Frame):
-    def __init__(self, master, csvpath):
+    def __init__(self, master, path):
         super().__init__(master,
             padx= 20,
             pady= 20,
         )
 
-        self.create_widget(csvpath)
+        self.create_widget(path)
 
 
-    def create_widget(self, csvpath):
+    def create_widget(self, path):
         # 入力欄
         self.input_frame = InputFrame(self)
 
         # 登録スキル一覧
-        self.data_frame = DataFrame(self, csvpath)
+        self.data_frame = DataFrame(self, path)
 
         # 演算ボタン
         btn = tk.Button(self,
@@ -52,8 +50,8 @@ class MainFrame(tk.Frame):
         self.result_text.pack(pady= 10)
 
 
-    # 演算ボタンを押した時の処理
     def execute(self):
+        """ 演算ボタンを押した時の処理 """
         ally_data = self.input_frame.get_entry_values("ally")
         enemy_data = self.input_frame.get_entry_values("enemy")
 
@@ -85,27 +83,24 @@ class MainFrame(tk.Frame):
         return
 
 
-    # スキル一覧から入力欄へ入力する処理
     def skill_read(self, ally_enemy):
-        # スキル一覧からスキルデータを取得
-        skill:SkillData = self.data_frame.get_skill_data()
+        """ スキル一覧から入力欄へ入力する処理 """
+        skill = self.data_frame.get_skill_data()
+        # DBからスキルデータを取得
         self.input_frame.enter_entry_values(skill, ally_enemy)
+        # 入力欄にスキルデータを入力
 
 
-    # 入力欄からスキル一覧へ登録する処理
     def skill_write(self, ally_enemy):
+        """ 入力欄からスキル一覧へ登録する処理 """
+        skill = self.input_frame.get_entry_values(ally_enemy)
         # 入力欄からスキルデータを取得
-        data = self.input_frame.get_entry_values(ally_enemy)
-        skill = SkillData(
-            base_power= data[0],
-            coin_power= data[1],
-            coin_count= data[2]
-            )
         self.data_frame.add_skill_data(skill)
+        # DBへスキルデータを登録
 
 
-    def on_closing(self, path):
-        self.data_frame.on_closing(path)
+    def on_closing(self):
+        self.data_frame.on_closing()
 
 
 
@@ -113,24 +108,25 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Limbus Company Coin Simulator")
-        # self.geometry("550x250")
-        self.protocol("WM_DELETE_WINDOW",lambda: self.on_closing(csvpath))
+        self.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(path))
 
-        csvpath = "data.csv"
-        csvpath = "D:/VScode_lesson/limbus_coin_sim/00_git/data.csv"  # デバッグ用パス
+        path = "data.db"
+        path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"  # デバッグ用パス
 
-        if not os.path.exists(csvpath):
-            # data.csvが同じディレクトリに場合に終了する
-            ms.showerror("Error",f"{csvpath}が見つかりません")
+        if not os.path.exists(path):
+            # data.dbが同じディレクトリに無い場合に終了する
+            # sqliteでは存在しないファイルを指定すると新しく作成するのでそれ防止用
+            ms.showerror("Error",f"{path}が見つかりません")
             self.destroy()
         else:
             #フレームを配置
-            self.main_frame = MainFrame(self, csvpath)
+            self.main_frame = MainFrame(self, path)
             self.main_frame.pack()
 
 
-    def on_closing(self, path):
-        self.main_frame.on_closing(path)
+    def on_closing(self):
+        """ アプリを閉じる時に実行する処理 """
+        self.main_frame.on_closing()
         self.destroy()
 
 
