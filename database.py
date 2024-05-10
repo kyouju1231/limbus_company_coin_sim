@@ -44,7 +44,7 @@ class Database:
         skill_data = self.cur.execute(
             f"SELECT * FROM skills WHERE id= {id};"
         )
-        return skill_data
+        return next(skill_data) # 1行をタプルとして取り出す
 
 
     def search_skills(self, culumn_name, search_word) -> list[tuple]:

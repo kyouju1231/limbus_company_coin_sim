@@ -108,7 +108,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Limbus Company Coin Simulator")
-        self.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(path))
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         path = "data.db"
         path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"  # デバッグ用パス

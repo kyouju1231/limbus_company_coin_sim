@@ -66,7 +66,7 @@ class DataFrame(tk.Frame):
         self.id_name_list = self.db.get_id_and_name()
 
         for value in self.id_name_list:
-            self.listbox.insert(tk.END, value[0])
+            self.listbox.insert(tk.END, value[1])
 
 
     def get_skill_data(self) -> tuple|None:
@@ -88,8 +88,10 @@ class DataFrame(tk.Frame):
             skill_data = (BP, CP, CC, Men)"""
         if skill_data[2] < 1:
             # コイン枚数が0以下
-            ms.showerror("error","コイン枚数が不正です")
-            return
+            if ms.askokcancel("error","コイン枚数が不正です"):
+                pass
+            else:
+                return
 
         skill_name = sd.askstring("登録",
             "スキル名を入力してください", initialvalue= "skill")
@@ -117,7 +119,8 @@ class DataFrame(tk.Frame):
         # 選択中の項目のインデックスを取得 indexes = (index,)
 
         if len(indexes) == 1:
-            id = self.id_name_list[ indexes[0] ]
+            id = self.id_name_list[ indexes[0] ][0]
+            # self.id_name_list = [(id1,name1),(id2,name2),... ]
             self.db.delete_skill(id)
             self.init_listbox()
 
@@ -134,7 +137,7 @@ class DataFrame(tk.Frame):
                 new_name = sd.askstring("リネーム",
                     "スキル名を入力してください", initialvalue= "skill")
 
-            id = self.id_name_list[ indexes[0] ]
+            id = self.id_name_list[ indexes[0] ][0]
             self.db.rename_skill(id, new_name)
 
             self.init_listbox()
