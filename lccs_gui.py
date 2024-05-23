@@ -111,7 +111,7 @@ class App(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         path = "data.db"
-        path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"  # デバッグ用パス
+        # path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"  # デバッグ用パス
 
         if not os.path.exists(path):
             # data.dbが同じディレクトリに無い場合に終了する
