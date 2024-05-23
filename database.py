@@ -26,16 +26,19 @@ class Database:
                     "coin_power INTEGER,"
                     "coin_count INTEGER,"
                     "name TEXT,"
-                    "prisoner TEXT);"
+                    "prisoner TEXT DEFAULT NULL);"
             )
             self.conn.commit()
 
 
-    def get_id_and_name(self) -> list[tuple]:
-        """ 全てのIDとスキル名の情報を取得
-            -> [ (id1, name1), (id2, name2), ...]"""
-        rows = self.cur.execute("SELECT id,name FROM skills;")
-        return list(rows)
+    def get_id_and_name(self, skillname='') -> tuple[tuple]:
+        """ スキルのIDとスキル名を取得\n
+            -> [ (id, name), ...]
+            スキル名を指定しないと全てのスキルを取得する"""
+        search_result = self.cur.execute(
+            f"SELECT id,name FROM skills WHERE name LIKE '%{skillname}%';"
+        )
+        return tuple(search_result)
 
 
     def get_skill_data(self, id:int) -> tuple:
@@ -44,14 +47,7 @@ class Database:
         skill_data = self.cur.execute(
             f"SELECT * FROM skills WHERE id= {id};"
         )
-        return next(skill_data) # 1行をタプルとして取り出す
-
-
-    def search_skills(self, culumn_name, search_word) -> list[tuple]:
-        search_result = self.cur.execute(
-            f"SELECT * FROM skills WHERE {culumn_name}='{search_word}';"
-        )
-        return list(search_result)
+        return next(skill_data) # タプルとして取り出す
 
 
     def add_skill(self, skill:tuple):

@@ -19,35 +19,35 @@ class DataFrame(tk.Frame):
         # DBへアクセス
         self.db = DB(filepath)
 
-
         self.make_widget()
-        self.init_listbox()
+        self.update_listbox()
 
     def make_widget(self):
+        self.search_box = tk.Entry(self,
+            font= mainfont,
+        )
+        search_btn = tk.Button(self,
+            font= mainfont,
+            text= '検索',
+            command= self.search,
+        )
+
         self.listbox = tk.Listbox(self,
             font= mainfont,
             width= 30, height= 12,
             selectmode= "single",
         )
-        self.listbox.grid(row= 0, column= 0,
-            columnspan= 2,
-            pady= 5,
-        )
+
         scrollbar = tk.Scrollbar(self,
             orient= tk.VERTICAL,
             command= self.listbox.yview,
         )
         self.listbox["yscrollcommand"] = scrollbar.set
-        scrollbar.grid(row= 0, column= 3,
-            sticky= tk.N + tk.S,
-        )
 
         del_btn = tk.Button(self,
             text= "削除", font= mainfont,
             width= 10,
             command= self.del_skill_data,
-        )
-        del_btn.grid(row= 1, column= 0
         )
 
         ren_btn = tk.Button(self,
@@ -55,18 +55,29 @@ class DataFrame(tk.Frame):
             width= 10,
             command= self.rename_skill_data,
         )
-        ren_btn.grid(row= 1, column= 1
-        )
+
+        self.search_box .grid(row= 0, column= 0, columnspan=2,)
+        search_btn      .grid(row= 0, column= 2,)
+        self.listbox    .grid(row= 1, column= 0, columnspan= 3, pady= 5,)
+        scrollbar       .grid(row= 1, column= 4, sticky= tk.N + tk.S,)
+        del_btn         .grid(row= 2, column= 0,)
+        ren_btn         .grid(row= 2, column= 1,)
 
 
-    def init_listbox(self):
-        """ self.id_name_listとself.listboxを同期 """
+    def search(self):
+        word = self.search_box.get()
+        self.update_listbox(word)
+
+
+    def update_listbox(self, search_word=''):
+        """ self.listboxに表示される内容を更新してself.id_name_listと同期
+            search_word:スキル名検索用文字列 """
         self.listbox.delete(0,tk.END)
 
-        self.id_name_list = self.db.get_id_and_name()
+        self.id_name_list = self.db.get_id_and_name(search_word)
 
-        for value in self.id_name_list:
-            self.listbox.insert(tk.END, value[1])
+        for id_name in self.id_name_list:
+            self.listbox.insert(tk.END, id_name[1])
 
 
     def get_skill_data(self) -> tuple|None:
@@ -77,7 +88,8 @@ class DataFrame(tk.Frame):
         if len(indexes) == 1:
             index = indexes[0]
             id = self.id_name_list[index][0]
-            return self.db.get_skill_data(id)
+            # インデックスからDBのIDを取得
+            return self.db.get_skill_data(id)   # IDを指定してスキルデータを取得
         else:
             # 選択中の項目が0ならNoneを返す
             return
@@ -110,7 +122,7 @@ class DataFrame(tk.Frame):
             skill_data = (skill_data[0], skill_data[1], skill_data[2], skill_name, None)
             # tupleのデータを整えてDBへ渡す
             self.db.add_skill(skill_data)
-            self.init_listbox()
+            self.update_listbox()
 
 
     def del_skill_data(self):
@@ -122,7 +134,7 @@ class DataFrame(tk.Frame):
             id = self.id_name_list[ indexes[0] ][0]
             # self.id_name_list = [(id1,name1),(id2,name2),... ]
             self.db.delete_skill(id)
-            self.init_listbox()
+            self.update_listbox()
 
 
     def rename_skill_data(self):
@@ -140,7 +152,7 @@ class DataFrame(tk.Frame):
             id = self.id_name_list[ indexes[0] ][0]
             self.db.rename_skill(id, new_name)
 
-            self.init_listbox()
+            self.update_listbox()
 
 
     def on_closing(self):
