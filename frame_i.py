@@ -7,57 +7,67 @@ from font_setting import *
 
 class EntryFrame(tk.Frame):
     """ エントリと横の数値を上下させるボタンをまとめたウィジェット """
-    def __init__(self,master):
+    def __init__(self, master, upper_limit=None, lower_limit=None):
         super().__init__(master,
-                    background= "white",
-                    bd= 2, relief= "groove",
-                    )
-        self.create_widget()
+            background= "white",
+            bd= 2, relief= "groove",
+        )
+        self.create_widget(upper_limit, lower_limit)
 
-    def create_widget(self):
+    def create_widget(self, upper_limit, lower_limit):
         self.entry = tk.Entry(self,
-                    width= 10,
-                    font= mainfont,
-                    justify= tk.CENTER,
-                    bd= 2, relief= "flat",
-                    )
+            width= 10,
+            font= mainfont,
+            justify= tk.CENTER,
+            bd= 2, relief= "flat",
+        )
+        self.entry.configure(
+            validate= "key",
+            validatecommand= (self.entry.register(self.vc),"%P"),
+        )
         self.entry.pack(side=tk.LEFT)
         self.entry.insert(0,"0")
 
         up_btn = tk.Button(self,
-                    width= 2,
-                    text= "▲", font= buttonfont,
-                    bd=1, relief= "raised",
-                    command= lambda: self.increment(self.entry),
-                    repeatdelay= 100, repeatinterval= 120,
-                    )
+            width= 2,
+            text= "▲", font= buttonfont,
+            bd=1, relief= "raised",
+            command= lambda: self.increment(self.entry, upper_limit),
+            repeatdelay= 100, repeatinterval= 120,
+        )
         up_btn.pack(side=tk.TOP)
 
         dwn_btn = tk.Button(self,
-                    width= 2,
-                    text= "▼", font= buttonfont,
-                    bd=1, relief= "raised",
-                    command= lambda: self.decrement(self.entry),
-                    repeatdelay= 100, repeatinterval= 120,
-                    )
+            width= 2,
+            text= "▼", font= buttonfont,
+            bd=1, relief= "raised",
+            command= lambda: self.decrement(self.entry, lower_limit),
+            repeatdelay= 100, repeatinterval= 120,
+        )
         dwn_btn.pack(side=tk.BOTTOM)
 
 
-    def increment(self, entry:tk.Entry):
+    def increment(self, entry:tk.Entry, upper_limit):
         """ エントリの数値を上げる関数 """
         current_value = entry.get()
         if current_value.lstrip("-").isdigit():
-            new_value = int(current_value) + 1
-            entry.delete(0, tk.END)
-            entry.insert(0, str(new_value))
+            # -を除いた文字列が全て数字なら
+            if upper_limit == None or int(current_value) < upper_limit:
+                # 上限値が未設定 または 現在値が上限値未満 なら
+                new_value = int(current_value) + 1
+                entry.delete(0, tk.END)
+                entry.insert(0, str(new_value))
 
-    def decrement(self, entry:tk.Entry):
+    def decrement(self, entry:tk.Entry, lower_limit):
         """ エントリの数値を下げる関数 """
         current_value = entry.get()
         if current_value.lstrip("-").isdigit():
-            new_value = int(current_value) - 1
-            entry.delete(0, tk.END)
-            entry.insert(0, str(new_value))
+            # -を除いた文字列が全て数字なら
+            if lower_limit == None or int(current_value) > lower_limit:
+                # 下限値が未設定 または 現在値が下限値超 なら
+                new_value = int(current_value) - 1
+                entry.delete(0, tk.END)
+                entry.insert(0, str(new_value))
 
 
     def get_value(self) -> int:
@@ -69,6 +79,15 @@ class EntryFrame(tk.Frame):
         """ エントリに値を入れる """
         self.entry.delete(0,tk.END)
         self.entry.insert(0,value)
+
+
+    def vc(self, string:str):
+        """ Entryの入力を限定するvalidatecommand
+            正負の数字と空欄のみを許可"""
+        if string:
+            return string.lstrip('-').isdigit()
+        else:
+            return True
 
 
 
@@ -105,8 +124,13 @@ class InputFrame(tk.Frame):
             text= "敵スキル", font= mainfont,)
         )
         for i in range(4):
-            self.row1.append(EntryFrame(self))
-            self.row2.append(EntryFrame(self))
+            if i == 3:
+                # 4つ目（精神力の欄）のみ上下限値を設定する
+                self.row1.append(EntryFrame(self,45,-45))
+                self.row2.append(EntryFrame(self,45,-45))
+            else:
+                self.row1.append(EntryFrame(self))
+                self.row2.append(EntryFrame(self))
 
         # 3行をまとめる
         table = [row0, self.row1, self.row2]
