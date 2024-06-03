@@ -21,10 +21,13 @@ class EntryFrame(tk.Frame):
             justify= tk.CENTER,
             bd= 2, relief= "flat",
         )
+
+        vcmd = self.vc(upper_limit, lower_limit)
         self.entry.configure(
             validate= "key",
-            validatecommand= (self.entry.register(self.vc),"%P"),
+            validatecommand= (self.entry.register(vcmd),"%P"),
         )
+
         self.entry.pack(side=tk.LEFT)
         self.entry.insert(0,"0")
 
@@ -33,7 +36,7 @@ class EntryFrame(tk.Frame):
             text= "▲", font= buttonfont,
             bd=1, relief= "raised",
             command= lambda: self.increment(self.entry, upper_limit),
-            repeatdelay= 100, repeatinterval= 120,
+            repeatdelay= 100, repeatinterval= 60,
         )
         up_btn.pack(side=tk.TOP)
 
@@ -42,7 +45,7 @@ class EntryFrame(tk.Frame):
             text= "▼", font= buttonfont,
             bd=1, relief= "raised",
             command= lambda: self.decrement(self.entry, lower_limit),
-            repeatdelay= 100, repeatinterval= 120,
+            repeatdelay= 100, repeatinterval= 60,
         )
         dwn_btn.pack(side=tk.BOTTOM)
 
@@ -81,13 +84,36 @@ class EntryFrame(tk.Frame):
         self.entry.insert(0,value)
 
 
-    def vc(self, string:str):
-        """ Entryの入力を限定するvalidatecommand
-            正負の数字と空欄のみを許可"""
-        if string:
-            return string.lstrip('-').isdigit()
-        else:
-            return True
+    def vc(self, ulim, llim):
+        """ validatecommandを返す """
+        def validate(string:str):
+            """ Entryの入力を限定するvalidatecommand
+                正負の数字と空欄のみを許可"""
+            if string.lstrip('-'):
+                # stringが空文字ではないなら(-は除く)
+                if ulim and llim:
+                    return (
+                        string.lstrip('-').isdigit() and
+                        llim <= int(string) <= ulim
+                    )
+                elif ulim:
+                    return (
+                        string.lstrip('-').isdigit() and
+                        int(string) <= ulim
+                    )
+                elif llim:
+                    return (
+                        string.lstrip('-').isdigit() and
+                        llim <= int(string)
+                    )
+                else:
+                    return (
+                        string.lstrip('-').isdigit()
+                    )
+            else:
+                return True
+
+        return validate
 
 
 
