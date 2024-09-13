@@ -35,6 +35,7 @@ class Database:
         """ スキルのIDとスキル名を取得\n
             -> [ (id, name), ...]
             スキル名を指定しないと全てのスキルを取得する"""
+            # スキル名を入力すると検索として機能する
         search_result = self.cur.execute(
             f"SELECT id,name FROM skills WHERE name LIKE '%{skillname}%';"
         )
@@ -51,7 +52,8 @@ class Database:
 
 
     def add_skill(self, skill:tuple):
-        """ skill = (BP, CP, CC, NM, PR) """
+        """ スキルを登録
+            skill = (BP, CP, CC, NM, PR) """
         self.cur.execute(
             "INSERT INTO "
             "skills(base_power, coin_power, coin_count, name, prisoner) "
@@ -67,10 +69,23 @@ class Database:
         self.conn.commit()
 
 
-    def rename_skill(self, id:int, new_name:str):
-        """ IDを指定してリネーム """
-        self.cur.execute(f"UPDATE skills SET name='{new_name}' WHERE id={id};")
+    def edit_skill(self, skill:tuple):
+        """ IDを指定してスキルデータを編集
+            skill = (ID, BP, CP, CC, NM, PR) """
+        self.cur.execute(
+            "UPDATE skills SET "
+                f"base_power ={skill[1]},"
+                f"coin_power ={skill[2]},"
+                f"coin_count ={skill[3]},"
+                f"name ={skill[4]},"
+                f"WHERE id ={skill[0]}"
+        )
         self.conn.commit()
+
+    # def rename_skill(self, id:int, new_name:str):
+    #     """ IDを指定してリネーム """
+    #     self.cur.execute(f"UPDATE skills SET name='{new_name}' WHERE id={id};")
+    # self.conn.commit()
 
 
     def on_closing(self):
