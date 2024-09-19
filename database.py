@@ -74,11 +74,11 @@ class Database:
             skill = (ID, BP, CP, CC, NM, PR) """
         self.cur.execute(
             "UPDATE skills SET "
-                f"base_power ={skill[1]},"
-                f"coin_power ={skill[2]},"
-                f"coin_count ={skill[3]},"
-                f"name ={skill[4]},"
-                f"WHERE id ={skill[0]}"
+                f"base_power= {skill[1]},"
+                f"coin_power= {skill[2]},"
+                f"coin_count= {skill[3]},"
+                f"name=      '{skill[4]}'"
+                    f"WHERE id = {skill[0]};"
         )
         self.conn.commit()
 

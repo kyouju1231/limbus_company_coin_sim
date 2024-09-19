@@ -5,6 +5,7 @@ import tkinter.simpledialog as sd
 import tkinter.messagebox as ms
 
 from database import Database as DB
+from window_edit_skill import edit_skill_window
 
 from font_setting import *
 
@@ -51,7 +52,7 @@ class DataFrame(tk.Frame):
         )
 
         ren_btn = tk.Button(self,
-            text= "リネーム", font= mainfont,
+            text= "編集", font= mainfont,
             width= 10,
             command= self.rename_skill_data,
         )
@@ -143,14 +144,20 @@ class DataFrame(tk.Frame):
         # 選択中の項目のインデックスを取得 indexes = (index,)
 
         if len(indexes) == 1:
-            new_name = ""
+            index = indexes[0]
+            id = self.id_name_list[index][0]
+            # インデックスからDBのIDを取得
 
-            while new_name == "":
-                new_name = sd.askstring("リネーム",
-                    "スキル名を入力してください", initialvalue= "skill")
+            skilldata = self.db.get_skill_data(id)
+            # DBからスキルデータを取得
 
-            id = self.id_name_list[ indexes[0] ][0]
-            self.db.rename_skill(id, new_name)
+            edited_skilldata = edit_skill_window(skilldata)
+            # スキル編集
+
+            if edited_skilldata != skilldata:
+                # 編集前後のスキル内容が違うなら
+                self.db.edit_skill(edited_skilldata)
+                # 編集後のスキルをDBへ登録
 
             self.update_listbox()
 
