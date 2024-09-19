@@ -54,7 +54,7 @@ class DataFrame(tk.Frame):
         ren_btn = tk.Button(self,
             text= "編集", font= mainfont,
             width= 10,
-            command= self.rename_skill_data,
+            command= self.edit_skill_data,
         )
 
         self.search_box .grid(row= 0, column= 0, columnspan=2,)
@@ -113,17 +113,10 @@ class DataFrame(tk.Frame):
             ms.showerror("error","スキル名を入力してください")
             return self.add_skill_data(skill_data)
 
-        text = ( "このスキルを登録しますか？\n"
-                f"スキル名: {skill_name}\n"
-                f"基礎威力: {skill_data[0]}\n"
-                f"コイン威力: {skill_data[1]}\n"
-                f"コイン枚数: {skill_data[2]}\n")
-
-        if ms.askokcancel("確認", text):
-            skill_data = (skill_data[0], skill_data[1], skill_data[2], skill_name, None)
-            # tupleのデータを整えてDBへ渡す
-            self.db.add_skill(skill_data)
-            self.update_listbox()
+        skill_data = (skill_data[0], skill_data[1], skill_data[2], skill_name, None)
+        # tupleのデータを整えてDBへ渡す
+        self.db.add_skill(skill_data)
+        self.update_listbox()
 
 
     def del_skill_data(self):
@@ -138,8 +131,8 @@ class DataFrame(tk.Frame):
             self.update_listbox()
 
 
-    def rename_skill_data(self):
-        """ リストボックスの選択中のスキルをリネーム """
+    def edit_skill_data(self):
+        """ リストボックスの選択中のスキルを編集 """
         indexes = self.listbox.curselection()
         # 選択中の項目のインデックスを取得 indexes = (index,)
 
