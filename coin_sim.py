@@ -207,18 +207,21 @@ def calcutate(ally_data, enemy_data):
         enemy_paralyze   = int(enemy_data[4])
 
     except ValueError:
+        # 整数に変換できない場合
         return -2,0
 
 
-    # コインが0枚以下、精神力が-45~45の範囲外
+    # 入力値が不正である場合の処理
     if (
-        (ally_coin_count < 1)  or
-        (enemy_coin_count < 1) or
-        not(-45 <= ally_mental <= 45) or
-        not(-45 <= enemy_mental <= 45)
+        (ally_coin_count < 1) or (enemy_coin_count < 1) or
+        # コインが0枚以下
+        not(-45 <= ally_mental <= 45) or not(-45 <= enemy_mental <= 45) or
+        # 精神力が-45~45の範囲外
+        (ally_paralyze > 0 ) or (enemy_paralyze > 0)
+        # 麻痺が0未満
     ):
-        # エラー値を返す
         return -1,0
+        # エラー値を返す
 
 
     # 初回マッチ勝率
