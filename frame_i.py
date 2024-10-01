@@ -245,6 +245,6 @@ class InputFrame(tk.Frame):
 
         ally_read_btn  .grid(row= 1, column= len(self.row1)+1, padx= 5,)
         enemy_read_btn .grid(row= 2, column= len(self.row2)+1, padx= 5,)
-        ally_write_btn .grid(row= 1, column= len(self.row1)+1, padx= 5,)
-        enemy_write_btn.grid(row= 2, column= len(self.row2)+1, padx= 5,)
+        ally_write_btn .grid(row= 1, column= len(self.row1)+2, padx= 5,)
+        enemy_write_btn.grid(row= 2, column= len(self.row2)+2, padx= 5,)
         # row1,2の右端にボタンを配置する
