@@ -217,7 +217,7 @@ def calcutate(ally_data, enemy_data):
         # コインが0枚以下
         not(-45 <= ally_mental <= 45) or not(-45 <= enemy_mental <= 45) or
         # 精神力が-45~45の範囲外
-        (ally_paralyze > 0 ) or (enemy_paralyze > 0)
+        (ally_paralyze < 0 ) or (enemy_paralyze < 0)
         # 麻痺が0未満
     ):
         return -1,0
@@ -248,13 +248,13 @@ def calcutate(ally_data, enemy_data):
 
 
 # 動作テスト
-if __name__ == '__main__':
-    #       (基礎威力, コイン威力, コイン数, 精神力, 麻痺)
-    ally  = ( 5, 1, 3, 0, 0 )
-    enemy = ( 5, 1, 4, 0, 3 )
+# if __name__ == '__main__':
+#     #       (基礎威力, コイン威力, コイン数, 精神力, 麻痺)
+#     ally  = ( 5, 1, 3, 0, 0 )
+#     enemy = ( 5, 1, 4, 0, 3 )
 
-    result = calcutate(ally,enemy)
-    print(
-        f"初回勝率:{result[0]}\n"
-        f"最終勝率:{result[1]}"
-    )
+#     result = calcutate(ally,enemy)
+#     print(
+#         f"初回勝率:{result[0]}\n"
+#         f"最終勝率:{result[1]}"
+#     )
