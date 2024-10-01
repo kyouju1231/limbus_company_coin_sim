@@ -67,7 +67,7 @@ class MainFrame(tk.Frame):
 
         elif result1 == -1: # エラー1
             self.result_text["text"] = (
-                "コイン枚数または精神力の値が正しくありません。")
+                "コイン枚数、精神力または麻痺の値が正しくありません。")
             self.result_text["fg"] = "red"
 
         elif result1 == -2: # エラー2
@@ -111,7 +111,9 @@ class App(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         path = "data.db"
-        path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"  # デバッグ用パス
+
+        path = "D:/VScode_lesson/limbus_coin_sim/00_git/data.db"
+        # デバッグ用パス
 
         if not os.path.exists(path):
             # data.dbが同じディレクトリに無い場合に終了する
