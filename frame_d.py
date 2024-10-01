@@ -98,13 +98,13 @@ class DataFrame(tk.Frame):
 
     def add_skill_data(self, skill_data:tuple):
         """ DBへスキルを登録、listboxを更新\n
-            skill_data = (BP, CP, CC, Men)"""
-        if skill_data[2] < 1:
-            # コイン枚数が0以下
-            if ms.askokcancel("error","コイン枚数が不正です"):
-                pass
-            else:
-                return
+            skill_data = (BP, CP, CC, Men, paralyze)"""
+        # if skill_data[2] < 1:
+        #     # コイン枚数が0以下
+        #     if ms.askokcancel("error","コイン枚数が不正です"):
+        #         pass
+        #     else:
+        #         return
 
         skill_name = sd.askstring("登録",
             "スキル名を入力してください", initialvalue= "skill")
