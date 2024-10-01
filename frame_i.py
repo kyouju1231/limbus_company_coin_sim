@@ -10,7 +10,8 @@ class EntryFrame(tk.Frame):
     def __init__(self, master, upper_limit=None, lower_limit=None):
         super().__init__(master,
             background= "white",
-            bd= 2, relief= "groove",
+            bd= 2,
+            relief= "groove",
         )
         self.create_widget(upper_limit, lower_limit)
 
@@ -19,9 +20,11 @@ class EntryFrame(tk.Frame):
             width= 10,
             font= mainfont,
             justify= tk.CENTER,
-            bd= 2, relief= "flat",
+            bd= 2,
+            relief= "flat",
         )
 
+        # 入力規制
         vcmd = self.vc(upper_limit, lower_limit)
         self.entry.configure(
             validate= "key",
@@ -33,8 +36,10 @@ class EntryFrame(tk.Frame):
 
         up_btn = tk.Button(self,
             width= 2,
-            text= "▲", font= buttonfont,
-            bd=1, relief= "raised",
+            text= "▲",
+            font= buttonfont,
+            bd=1,
+            relief= "raised",
             command= lambda: self.increment(self.entry, upper_limit),
             repeatdelay= 100, repeatinterval= 60,
         )
@@ -42,8 +47,10 @@ class EntryFrame(tk.Frame):
 
         dwn_btn = tk.Button(self,
             width= 2,
-            text= "▼", font= buttonfont,
-            bd=1, relief= "raised",
+            text= "▼",
+            font= buttonfont,
+            bd=1,
+            relief= "raised",
             command= lambda: self.decrement(self.entry, lower_limit),
             repeatdelay= 100, repeatinterval= 60,
         )
@@ -134,29 +141,44 @@ class InputFrame(tk.Frame):
         self.row2:list[tk.Label|EntryFrame] = []
 
         # ヘッダー行
-        text1 = ("","基礎威力","コイン威力","コイン枚数","精神力")
+        text1 = ("","基礎威力","コイン威力","コイン枚数","精神力","麻痺")
         for text in text1:
-            row0.append(tk.Label(self,
-                text= text,
-                font= mainfont,
-                width= 8,
-            ))
+            row0.append(
+                tk.Label(
+                    self,
+                    text= text,
+                    font= mainfont,
+                    width= 8,
+                )
+            )
 
         # 2,3行目
-        self.row1.append(tk.Label(self, width= 8,
-            text= "味方スキル", font= mainfont,)
+        self.row1.append(
+            tk.Label(self,
+                width= 8,
+                text= "味方スキル",
+                font= mainfont,
+            )
         )
-        self.row2.append(tk.Label(self, width= 8,
-            text= "敵スキル", font= mainfont,)
+        self.row2.append(
+            tk.Label(self,
+                width= 8,
+                text= "敵スキル",
+                font= mainfont,
+            )
         )
-        for i in range(4):
-            if i == 3:
-                # 4つ目（精神力の欄）のみ上下限値を設定する
-                self.row1.append(EntryFrame(self,45,-45))
-                self.row2.append(EntryFrame(self,45,-45))
-            else:
-                self.row1.append(EntryFrame(self))
-                self.row2.append(EntryFrame(self))
+
+        for i in range(3):
+            self.row1.append(EntryFrame(self))
+            self.row2.append(EntryFrame(self))
+
+        # 4列目（精神力）は-45~45の範囲に限定
+        self.row1.append(EntryFrame(self, 45, -45))
+        self.row2.append(EntryFrame(self, 45, -45))
+
+        # 5列目（麻痺）は0以上に限定
+        self.row1.append(EntryFrame(self, None, 0))
+        self.row2.append(EntryFrame(self, None, 0))
 
         # 3行をまとめる
         table = [row0, self.row1, self.row2]
@@ -175,13 +197,12 @@ class InputFrame(tk.Frame):
         elif ally_enemy == "enemy":
             tmp_data:list[EntryFrame] = list(self.row2)
 
-        del tmp_data[0]     # 列見出しのラベルを削除
-
         data = (
-            tmp_data[0].get_value(),
-            tmp_data[1].get_value(),
-            tmp_data[2].get_value(),
-            tmp_data[3].get_value(),
+            tmp_data[1].get_value(),    # BP
+            tmp_data[2].get_value(),    # CP
+            tmp_data[3].get_value(),    # CC
+            tmp_data[4].get_value(),    # Men
+            tmp_data[5].get_value(),    # paralyze
         )
 
         return data
@@ -192,6 +213,7 @@ class InputFrame(tk.Frame):
             data = (ID, BP, CP, CC, NM, PR)"""
         if ally_enemy == "ally":
             for i in range(1,4):
+                # range(1,4) = [1,2,3]
                 self.row1[i].enter_value( data[i] )
         elif ally_enemy == "enemy":
             for i in range(1,4):
@@ -221,8 +243,8 @@ class InputFrame(tk.Frame):
             command= lambda: master.skill_write("enemy"),
         )
 
-        ally_read_btn  .grid(row= 1, column= 5, padx= 5,)
-        enemy_read_btn .grid(row= 2, column= 5, padx= 5,)
-        ally_write_btn .grid(row= 1, column= 6, padx= 5,)
-        enemy_write_btn.grid(row= 2, column= 6, padx= 5,)
-
+        ally_read_btn  .grid(row= 1, column= len(self.row1)+1, padx= 5,)
+        enemy_read_btn .grid(row= 2, column= len(self.row2)+1, padx= 5,)
+        ally_write_btn .grid(row= 1, column= len(self.row1)+1, padx= 5,)
+        enemy_write_btn.grid(row= 2, column= len(self.row2)+1, padx= 5,)
+        # row1,2の右端にボタンを配置する
