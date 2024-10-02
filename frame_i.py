@@ -191,7 +191,7 @@ class InputFrame(tk.Frame):
 
     def get_entry_values(self, ally_enemy) -> tuple:
         """ エントリの値を取得\n
-            -> [BP, CP, CC, Men] """
+            -> [BP, CP, CC, Men, Prz] """
         if ally_enemy == "ally":
             tmp_data:list[EntryFrame] = list(self.row1)
         elif ally_enemy == "enemy":

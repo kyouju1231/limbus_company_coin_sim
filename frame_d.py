@@ -110,8 +110,8 @@ class DataFrame(tk.Frame):
             "スキル名を入力してください", initialvalue= "skill")
 
         if not skill_name:
-            ms.showerror("error","スキル名を入力してください")
-            return self.add_skill_data(skill_data)
+            # キャンセルでメッセージボックスを閉じる
+            return
 
         skill_data = (skill_data[0], skill_data[1], skill_data[2], skill_name, None)
         # tupleのデータを整えてDBへ渡す

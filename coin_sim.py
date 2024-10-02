@@ -32,15 +32,16 @@ class skill:
         self.cal_final_power_and_probability()
 
     def cal_final_power_and_probability(self):
-        # コインが表になる確率
+        """ 最終威力とその確率を計算 """
         coin_heads_prob = (self.men + 50) / 100
+        # コインが表になる確率
 
         self.results = []
         # 最終威力とそれが出る確率の組み合わせが全て格納されるリスト
 
         # 麻痺を考慮した補正コイン枚数を算出
+        # ccc: correctioned coin counts  補正コイン枚数
         ccc = self.cc - self.prz
-        # ccc: correction coin counts  補正コイン枚数
             # 麻痺は裏面固定と同義なので
             # コイン枚数を麻痺の数値分減らす事で組み合わせを計算できる
 
