@@ -7,7 +7,7 @@ from font_setting import *
 
 class EntryFrame(tk.Frame):
     """ エントリと横の数値を上下させるボタンをまとめたウィジェット """
-    def __init__(self, master, upper_limit=None, lower_limit=None):
+    def __init__(self, master, upper_limit:int=None, lower_limit:int=None):
         super().__init__(master,
             background= "white",
             bd= 2,
@@ -67,6 +67,8 @@ class EntryFrame(tk.Frame):
                 new_value = int(current_value) + 1
                 entry.delete(0, tk.END)
                 entry.insert(0, str(new_value))
+        elif current_value == "":
+            entry.insert(0, "0")
 
     def decrement(self, entry:tk.Entry, lower_limit):
         """ エントリの数値を下げる関数 """
@@ -78,11 +80,17 @@ class EntryFrame(tk.Frame):
                 new_value = int(current_value) - 1
                 entry.delete(0, tk.END)
                 entry.insert(0, str(new_value))
+        elif current_value == "":
+            entry.insert(0, "0")
 
 
     def get_value(self) -> int:
         """ エントリの値を返す """
-        return int(self.entry.get())
+        try:
+            value = int(self.entry.get())
+        except:
+            pass
+        return value
 
 
     def enter_value(self, value):
@@ -98,17 +106,17 @@ class EntryFrame(tk.Frame):
                 正負の数字と空欄のみを許可"""
             if string.lstrip('-'):
                 # stringが空文字ではないなら(-は除く)
-                if ulim and llim:
+                if isinstance(ulim, int) and isinstance(llim, int):
                     return (
                         string.lstrip('-').isdigit() and
                         llim <= int(string) <= ulim
                     )
-                elif ulim:
+                elif isinstance(ulim, int):
                     return (
                         string.lstrip('-').isdigit() and
                         int(string) <= ulim
                     )
-                elif llim:
+                elif isinstance(llim, int):
                     return (
                         string.lstrip('-').isdigit() and
                         llim <= int(string)
@@ -153,6 +161,7 @@ class InputFrame(tk.Frame):
             )
 
         # 2,3行目
+        # 1列目
         self.row1.append(
             tk.Label(self,
                 width= 8,
@@ -168,15 +177,20 @@ class InputFrame(tk.Frame):
             )
         )
 
-        for i in range(3):
+        # 2,3列目
+        for i in range(2):
             self.row1.append(EntryFrame(self))
             self.row2.append(EntryFrame(self))
 
-        # 4列目（精神力）は-45~45の範囲に限定
+        # 4列目（コイン枚数）は0以上に限定
+        self.row1.append(EntryFrame(self, None, 0))
+        self.row2.append(EntryFrame(self, None, 0))
+
+        # 5列目（精神力）は-45~45の範囲に限定
         self.row1.append(EntryFrame(self, 45, -45))
         self.row2.append(EntryFrame(self, 45, -45))
 
-        # 5列目（麻痺）は0以上に限定
+        # 6列目（麻痺）は0以上に限定
         self.row1.append(EntryFrame(self, None, 0))
         self.row2.append(EntryFrame(self, None, 0))
 
