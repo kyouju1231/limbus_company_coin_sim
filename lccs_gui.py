@@ -62,22 +62,32 @@ class MainFrame(tk.Frame):
             # resultの値が正常値
             self.result_text["text"] = (
                 f"初回勝率: { round(result1*100,2)}%\n"
-                f"最終勝率: { round(result2*100,2)}%" )
+                f"最終勝率: { round(result2*100,2)}%"
+            )
             self.result_text["fg"] = "black"
 
         elif result1 == -1: # エラー1
             self.result_text["text"] = (
-                "コイン枚数、精神力または麻痺の値が正しくありません。")
+                "コイン枚数、精神力または麻痺の値が正しくありません。"
+            )
             self.result_text["fg"] = "red"
 
         elif result1 == -2: # エラー2
             self.result_text["text"] = (
-                "整数以外が入力されています。")
+                "整数以外が入力されています。"
+            )
+            self.result_text["fg"] = "red"
+
+        elif result1 == -3: # エラー3
+            self.result_text["text"] = (
+                "引き分け率100%"
+            )
             self.result_text["fg"] = "red"
 
         else:
             self.result_text["text"] = (
-                "不明なエラーです。開発者へご報告下さい。")
+                "不明なエラーです。開発者へご報告下さい。"
+            )
             self.result_text["fg"] = "red"
 
         return

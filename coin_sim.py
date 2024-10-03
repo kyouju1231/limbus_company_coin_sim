@@ -104,8 +104,7 @@ def cal_match(
     # マッチ勝率
     if a_prz == 0 and e_prz == 0:
         # 麻痺が無ければ引き分けの可能性を消す
-        # 永遠に引き分ける可能性を残すと
-        # cal_win_probでの再帰計算が終わらないので引き分けの可能性をここで消す
+        # ↑永遠に引き分ける可能性を残すとcal_win_probでの再帰計算が終わらないから
         win_prob  = win_prob / ( win_prob + lose_prob )
         lose_prob = 1 - win_prob
     else:
@@ -140,15 +139,15 @@ def cal_win_prob(
 
         # 次のマッチの麻痺値の処理
         if a_prz > 0:
-        # コインを振った分だけ麻痺値を減少
             a_prz = a_prz - a_cc
+            # コインを振った分だけ麻痺値を減少
             if a_prz < 0:
             # 麻痺0未満になったら麻痺を0に
                 a_prz = 0
 
         if e_prz > 0:
-        # コインを振った分だけ麻痺値を減少
             e_prz = e_prz - e_cc
+            # コインを振った分だけ麻痺値を減少
             if e_prz < 0:
             # 麻痺0未満になったら麻痺を0に
                 e_prz = 0
@@ -173,6 +172,7 @@ def cal_win_prob(
         )
 
         # マッチで引き分ける場合
+            # prob_dは基本的に0になるので麻痺が絡む時だけの専用処理
         if prob_d != 0:
             # 引き分ける時だけ計算する
             # cal_matchは麻痺が1以上の時だけ引き分けの確率を出す
@@ -215,14 +215,24 @@ def calcutate(ally_data, enemy_data):
     # 入力値が不正である場合の処理
     if (
         (ally_coin_count < 1) or (enemy_coin_count < 1) or
-        # コインが0枚以下
+        # コインが0枚以下 または
         not(-45 <= ally_mental <= 45) or not(-45 <= enemy_mental <= 45) or
-        # 精神力が-45~45の範囲外
+        # 精神力が-45~45の範囲外 または
         (ally_paralyze < 0 ) or (enemy_paralyze < 0)
         # 麻痺が0未満
     ):
         return -1,0
         # エラー値を返す
+
+    # 引分率100%になる場合の処理
+    if (
+        ( ally_coin_power == 0 )  and
+        ( enemy_coin_power == 0 ) and
+        # 両者コイン威力が0 かつ
+        ( ally_base_power == enemy_base_power)
+        # 両者の基礎威力が同値
+    ):
+        return -3,0
 
 
     # 初回マッチ勝率
