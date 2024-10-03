@@ -12,13 +12,14 @@ class EntryFrame(tk.Frame):
             background= "white",
             bd= 2,
             relief= "groove",
+            pady= 1,
         )
         self.create_widget(upper_limit, lower_limit)
 
     def create_widget(self, upper_limit, lower_limit):
         self.entry = tk.Entry(self,
-            width= 10,
-            font= mainfont,
+            width= 8,
+            font= ("Meiryo",11),
             justify= tk.CENTER,
             bd= 2,
             relief= "flat",
